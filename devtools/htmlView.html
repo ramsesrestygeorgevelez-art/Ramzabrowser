@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Custom HTML Code Viewer</title>
+
+  <!-- CodeMirror core CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <!-- Theme (pick any you like, here Dracula) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+
+  <style>
+    body {
+      background: #1e1e1e;
+      color: #ddd;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    .editor-container {
+      display: flex;
+      gap: 20px;
+    }
+
+    .CodeMirror {
+      width: 50%;
+      height: 400px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      font-family: "Fira Code", monospace;
+      font-size: 14px;
+    }
+
+    iframe {
+      width: 50%;
+      height: 400px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .highlight-line {
+      background-color: rgba(255, 255, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <h2>Custom HTML Code Viewer with Preview</h2>
+
+  <div class="editor-container">
+    <!-- Textarea for CodeMirror -->
+    <textarea id="html-viewer">
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sample Viewer</title>
+    <style>
+      body { font-family: Arial; background: #f0f0f0; }
+      h1 { color: #333; }
+    </style>
+  </head>
+  <body>
+    <h1>Hello, CodeMirror!</h1>
+    <p>This is a live preview demo.</p>
+  </body>
+</html>
+    </textarea>
+
+    <!-- Preview iframe -->
+    <iframe id="preview"></iframe>
+  </div>
+
+  <!-- CodeMirror core JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <!-- Modes for HTML, CSS, JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+
+  <script>
+    // Initialize CodeMirror
+    const viewer = CodeMirror.fromTextArea(document.getElementById("html-viewer"), {
+      mode: "htmlmixed",
+      theme: "dracula",
+      lineNumbers: true,
+      lineWrapping: true,
+      readonly: true
+    });
+
+    // Load initial preview
+    document.getElementById("preview").srcdoc = viewer.getValue();
+
+    // Update preview on change
+    viewer.on("change", () => {
+      document.getElementById("preview").srcdoc = viewer.getValue();
+    });
+
+    // Example: highlight a line
+    viewer.addLineClass(5, "background", "highlight-line");
+  </script>
+</body>
+</html>
