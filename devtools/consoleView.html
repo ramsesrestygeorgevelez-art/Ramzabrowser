@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HTML Code Viewer with Console</title>
+
+  <!-- CodeMirror core CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+
+  <style>
+    body {
+      background: #1e1e1e;
+      color: #ddd;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    .layout {
+      display: flex;
+      gap: 20px;
+    }
+
+    .CodeMirror {
+      width: 50%;
+      height: 400px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      font-family: "Fira Code", monospace;
+      font-size: 14px;
+    }
+
+    iframe {
+      width: 50%;
+      height: 400px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .console {
+      margin-top: 20px;
+      background: #111;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 10px;
+      height: 200px;
+      overflow-y: auto;
+      font-family: "Fira Code", monospace;
+      font-size: 13px;
+    }
+
+    .log { color: #0f0; }
+    .warn { color: #ff0; }
+    .error { color: #f55; }
+  </style>
+</head>
+<body>
+  <h2>HTML Code Viewer + Live Preview + Console</h2>
+
+  <div class="layout">
+    <!-- Textarea for CodeMirror -->
+    <textarea id="html-viewer">
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Console Demo</title>
+    <script>
+      console.log("Hello from inside the iframe!");
+      console.warn("This is a warning.");
+      console.error("This is an error.");
+    </script>
+  </head>
+  <body>
+    <h1>Check the console below!</h1>
+  </body>
+</html>
+    </textarea>
+
+    <!-- Preview iframe -->
+    <iframe id="preview"></iframe>
+  </div>
+
+  <!-- Console output -->
+  <div id="console" class="console"></div>
+
+  <!-- CodeMirror core JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+
+  <script>
+    const textarea = document.getElementById("html-viewer");
+    const preview = document.getElementById("preview");
+    const consoleDiv = document.getElementById("console");
+
+    // Initialize CodeMirror
+    const editor = CodeMirror.fromTextArea(textarea, {
+      mode: "htmlmixed",
+      theme: "dracula",
+      lineNumbers: true,
+      lineWrapping: true
+    });
+
+    function logMessage(type, msg) {
+      const line = document.createElement("div");
+      line.className = type;
+      line.textContent = `[${type.toUpperCase()}] ${msg}`;
+      consoleDiv.appendChild(line);
+      consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    }
+
+    function hookConsole(iframeWindow) {
+      ["log", "warn", "error"].forEach(type => {
+        const original = iframeWindow.console[type];
+        iframeWindow.console[type] = function(...args) {
+          logMessage(type, args.join(" "));
+          original.apply(this, args);
+        };
+      });
+    }
+
+    function reloadPreview() {
+      const doc = preview.contentDocument || preview.contentWindow.document;
+      doc.open();
+      doc.write(editor.getValue());
+      doc.close();
+      hookConsole(preview.contentWindow);
+    }
+
+    // Initial load
+    reloadPreview();
+
+    // Update preview on change
+    editor.on("change", reloadPreview);
+  </script>
+</body>
+</html>
